@@ -1,0 +1,40 @@
+#
+# A Sample Teleport configuration file.
+#
+# Things to update:
+#  1. license.pem: You only need a license from https://dashboard.goteleport.com
+#     if you are an Enterprise customer.
+#
+version: v2
+teleport:
+  nodename: teleport1.iad02.nuspire.net
+  data_dir: /var/lib/teleport
+  log:
+    output: stderr
+    severity: INFO
+    format:
+      output: text
+  ca_pin: ""
+  diag_addr: ""
+auth_service:
+  enabled: "yes"
+  listen_addr: 0.0.0.0:3025
+  cluster_name: teleport1.nuspire.com
+  license_file: /var/lib/teleport/license.pem
+  proxy_listener_mode: multiplex
+  tokens:
+  - "node:967c06ff-7d26-4786-9e27-c9719fb33a43"
+ssh_service:
+  enabled: "yes"
+  commands:
+  - name: hostname
+    command: [hostname]
+    period: 1m0s
+proxy_service:
+  enabled: "yes"
+  web_listen_addr: 0.0.0.0:443
+  public_addr: teleport1.nuspire.com:443
+  https_keypairs: []
+  acme:
+    enabled: "yes"
+    email: itsupport@nuspire.com
