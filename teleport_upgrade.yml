@@ -1,31 +1,28 @@
 ---
-- hosts:
+- hosts: client
   gather_facts: yes
   become: yes
 
   tasks:
-    - name: Set Teleport binary variable
-      ansible.builtin.shell: DIR=$(which teleport | xargs dirname)
-
     - name: Backup Teleport binary
-      ansible.builtin.shell: sudo mv ${DIR}/teleport ${DIR}/teleport.bak
+      ansible.builtin.shell: sudo mv /usr/local/bin/teleport /usr/local/bin/teleport.bak
 
-    - name: Source variables about OS version
-      ansible.builtin.shell: source /etc/os-release
+    - name: Copy TeleportV11 tarball 
+      copy:
+        src: /tmp/playbooks/teleport-v11.3.2-linux-amd64-bin.tar.gz
+        dest: /tmp/v11
     
-    - name: Add the Teleport YUM repository for v11.
-      ansible.builtin.yum_repository:
-        name: Teleport v11
-        description: EPEL YUM repo
-        baseurl: https://yum.releases.teleport.dev/$ID/$VERSION_ID/Teleport/%{_arch}/stable/v11/teleport.repo
-    
+    - name: Extract the Teleport tarball
+      ansible.builtin.unarchive:
+        src: /tmp/v11/teleport-v11.3.2-linux-amd64-bin.tar.gz
+        dest: /tmp/v11
+        remote_src: yes
+
     - name: Install Teleport
-      ansible.builtin.yum:
-        name: teleport
-        state: latest
+      ansible.builtin.shell: /tmp/v11/teleport/./install
 
-    - name: Fork a new Teleport process
-      ansible.builtin.shell: sudo kill -USR2 $(pidof teleport)
+        # - name: Fork a new Teleport process
+        #ansible.builtin.shell: sudo kill -USR2 $(pidof teleport)
     
       
 
